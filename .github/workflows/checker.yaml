@@ -10,6 +10,7 @@ env:
     elapsed-time: 0
     commit-log: none
     apk-path: none
+    repo-title: none
 
 jobs:
     check_for_update:
@@ -26,6 +27,7 @@ jobs:
                 echo "elapsed-time=$(echo data/info.json | jq -r '.elapsed-time')" >> $GITHUB_ENV
                 echo "workflow_name=$(echo data/info.json | jq -r '.workflow.title')" >> $GITHUB_ENV
                 echo "commit-log=$(echo data/info.json | jq -r '.commit-log')" >> $GITHUB_ENV
+                echo "repo-title=$(echo data/settings.json | jq -r '.workflow.repo')" >> $GITHUB_ENV
 
                 apk=$(ls -S archive/*.apk | head -n 1)
                 echo "apk-path=$apk" >> $GITHUB_ENV
@@ -42,7 +44,7 @@ jobs:
                   git config --global user.email "${{ secrets.EMAIL }}"
                   git config --global user.name "${{ github.repository_owner }}"
                   git add .
-                  git commit -m "Updated dantotsu to latest version"
+                  git commit -m "Update ${{ env.repo-title }} to latest version"
 
             - name: Push Changes
               uses: ad-m/github-push-action@master
