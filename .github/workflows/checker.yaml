@@ -24,9 +24,9 @@ jobs:
               run: |
                 go run ./src/main.go 
                 echo "status=$(echo data/info.json | jq -r '.status')" >> $GITHUB_ENV
-                echo "elapsed-time=$(echo data/info.json | jq -r '.elapsed-time')" >> $GITHUB_ENV
+                echo "elapsed-time=$(echo data/info.json | jq -r '.["elapsed-time"]')" >> $GITHUB_ENV
                 echo "workflow_name=$(echo data/info.json | jq -r '.workflow.title')" >> $GITHUB_ENV
-                echo "commit-log=$(echo data/info.json | jq -r '.commit-log')" >> $GITHUB_ENV
+                echo "commit-log=$(echo data/info.json | jq -r '.["commit-log"]')" >> $GITHUB_ENV
                 echo "repo-title=$(echo data/settings.json | jq -r '.workflow.repo')" >> $GITHUB_ENV
 
                 apk=$(ls -S archive/*.apk | head -n 1)
