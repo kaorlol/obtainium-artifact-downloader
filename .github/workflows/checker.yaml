@@ -1,0 +1,103 @@
+name: update-checker
+
+on:
+    workflow_dispatch:
+
+env:
+    TOKEN_PAT: ${{ secrets.TOKEN_PAT }}
+    status: failure
+    workflow_name: none
+    elapsed-time: 0
+    commit-log: none
+    apk-path: none
+
+jobs:
+    check_for_update:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: Run Main.go
+              id: run-main
+              run: |
+                go run ./src/main.go 
+                echo "status=$(echo data/info.json | jq -r '.status')" >> $GITHUB_ENV
+                echo "elapsed-time=$(echo data/info.json | jq -r '.elapsed-time')" >> $GITHUB_ENV
+                echo "workflow_name=$(echo data/info.json | jq -r '.workflow.title')" >> $GITHUB_ENV
+                echo "commit-log=$(echo data/info.json | jq -r '.commit-log')" >> $GITHUB_ENV
+
+                apk=$(ls -S archive/*.apk | head -n 1)
+                echo "apk-path=$apk" >> $GITHUB_ENV
+
+            - name: Get Apk Info
+              id: apk-info
+              uses: hkusu/apk-info-action@v1
+              with:
+                  apk-path: ${{ env.apk-path }}
+              if: ${{ env.status == 'success' }}
+
+            - name: Commit Changes
+              run: |
+                  git config --global user.email "${{ secrets.EMAIL }}"
+                  git config --global user.name "${{ github.repository_owner }}"
+                  git add .
+                  git commit -m "Updated dantotsu to latest version"
+
+            - name: Push Changes
+              uses: ad-m/github-push-action@master
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Delete Old Releases
+              run: |
+                releases=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                  -H "Accept: application/vnd.github.v3+json" \
+                  https://api.github.com/repos/${{ github.repository }}/releases | jq -r '.[] | .id' | sort -nr)
+
+                for release in $releases; do
+                  curl -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                    -H "Accept: application/vnd.github.v3+json" \
+                    https://api.github.com/repos/${{ github.repository }}/releases/$release
+                done
+
+            - name: Delete Old Tags
+              run: |
+                tags=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                  -H "Accept: application/vnd.github.v3+json" \
+                  https://api.github.com/repos/${{ github.repository }}/tags | jq -r '.[] | .name')
+
+                for tag in $tags; do
+                  curl -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                    -H "Accept: application/vnd.github.v3+json" \
+                    https://api.github.com/repos/${{ github.repository }}/git/refs/tags/$tag
+                done
+
+            - name: Publish Release
+              uses: softprops/action-gh-release@v2
+              with:
+                  files: ./archive/*.apk
+                  tag_name: ${{ steps.apk-info.outputs.version-name }}
+                  name: ${{ env.workflow_name }}
+                  body: ${{ env.commit-log }}
+              if: ${{ env.status == 'success' }}
+
+    rerun-workflow:
+        name: Re-run workflow
+        needs: check_for_update
+        if: success() || failure()
+        runs-on: ubuntu-latest
+        steps:
+            - name: Sleep until 5 minutes have passed
+              run: |
+                  if [ ${{ env.elapsed-time }} -lt 300 ]; then
+                      sleep $((300 - ${{ env.elapsed-time }}))
+                  else
+                      echo "Elapsed time is greater than 5 minutes, skipping sleep"
+                  fi
+
+            - name: Re-trigger workflow
+              run: gh workflow run checker.yaml
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GH_REPO: ${{ github.repository }}
