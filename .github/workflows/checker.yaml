@@ -81,7 +81,7 @@ jobs:
                   files: ./archive/*.apk
                   tag_name: ${{ steps.apk-info.outputs.version-name }}
                   name: ${{ env.workflow_name }}
-                  body: ${{ env.commit-log }}
+                  body_path: ./data/commit-log.txt
               if: ${{ env.status == 'success' }}
 
     rerun-workflow:

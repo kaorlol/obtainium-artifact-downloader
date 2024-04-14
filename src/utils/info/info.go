@@ -14,7 +14,6 @@ type Workflow struct {
 }
 
 type Info struct {
-	CommitLog string `json:"commit-log"`
 	Status    string `json:"status"`
 	ElapsedTime int64 `json:"elapsed-time"`
 	Workflow  Workflow `json:"workflow"`

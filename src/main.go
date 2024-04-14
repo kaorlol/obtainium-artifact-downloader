@@ -20,7 +20,6 @@ func main() {
 
 	workflowInfo := info.GetInfo()
 	info.UpdateInfo(info.Info{
-		CommitLog: workflowInfo.CommitLog,
 		Status: workflowInfo.Status,
 		ElapsedTime: int64(time.Since(prevTime).Seconds()),
 		Workflow: info.Workflow{

@@ -56,7 +56,6 @@ func GetWorkflowLatestRun() (int64, error) {
 
 	fmt.Printf("Workflow run named: '%s' found with id %d\n", latestRun.GetName(), latestRun.GetID())
 	info.UpdateInfo(info.Info{
-		CommitLog: workflowInfo.CommitLog,
 		Status: workflowInfo.Status,
 		ElapsedTime: workflowInfo.ElapsedTime,
 		Workflow: info.Workflow{
@@ -122,21 +121,12 @@ func getCommitHistory(since, until time.Time) {
 	for _, commit := range commits {
 		message := commit.GetCommit().GetMessage()
 		author := commit.GetCommit().GetAuthor().GetName()
-		if author == "Weblate (bot)" {
-			continue
+		if author != "Weblate (bot)" {
+			commitLog += fmt.Sprintf("%s ~%s\n", message, author)
 		}
-		commitLog += fmt.Sprintf("%s ~%s\n", message, author)
 	}
 
-	info.UpdateInfo(info.Info{
-		CommitLog: commitLog,
-		Status: workflowInfo.Status,
-		Workflow: info.Workflow{
-			ID: workflowInfo.Workflow.ID,
-			Title: workflowInfo.Workflow.Title,
-		},
-	})
-
+	modules.WriteFile("data/commit-log.txt", commitLog)
 	println("Commit history updated successfully")
 }
 

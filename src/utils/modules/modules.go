@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"strings"
 	"archive/zip"
-	// "strings"
 )
 
 func ReadFile(path string) (string, error) {
@@ -19,6 +18,16 @@ func ReadFile(path string) (string, error) {
 	}
 
 	return string(data), nil
+}
+
+func WriteFile(path string, data string) error {
+	file := filepath.Join(path)
+	err := os.WriteFile(file, []byte(data), 0644)
+	if err != nil {
+		return fmt.Errorf("error writing file: %v", err)
+	}
+
+	return nil
 }
 
 func DownloadFile(urlStr string, outputDir string) error {
