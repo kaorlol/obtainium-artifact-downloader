@@ -101,7 +101,7 @@ jobs:
                   # fi
 
             - name: Re-trigger workflow
-              run: gh workflow run ${{ github.workflow }}.yaml
+              run: gh workflow run checker.yaml
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GH_REPO: ${{ github.repository }}

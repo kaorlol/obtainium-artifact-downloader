@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"artifact-downloader/src/utils/info"
@@ -99,7 +100,7 @@ func DownloadArtifacts(runID int64) error {
 	files, _ := os.ReadDir("archive")
 	for _, file := range files {
 		if file.IsDir() || file.Name()[len(file.Name())-4:] != ".apk" {
-			os.Remove("archive/" + file.Name())
+			os.Remove("archive/"+file.Name())
 		}
 	}
 	println("Artifacts downloaded successfully")
@@ -126,8 +127,9 @@ func getCommitHistory(since, until time.Time) error {
 	for _, commit := range commits {
 		message := commit.GetCommit().GetMessage()
 		author := commit.GetCommit().GetAuthor().GetName()
-		if author != "Weblate (bot)" {
-			commitLog += fmt.Sprintf("%s ~%s\n", message, author)
+
+		if !strings.Contains(author, "(bot)") {
+			commitLog += fmt.Sprintf("%s ~%s", strings.Trim(message, " \t\n\r"), author)
 		}
 	}
 
