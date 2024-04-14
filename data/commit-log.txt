@@ -1,0 +1,3 @@
+Feet(Settings): Revamped UI (#352)
+
+ Feet(Settings): Revamped UI ~Sadwhy
