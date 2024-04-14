@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"time"
 	"artifact-downloader/src/utils/actions"
 	"artifact-downloader/src/utils/info"
+	"fmt"
+	"time"
 )
 
 func main() {
@@ -17,14 +17,5 @@ func main() {
 	}
 
 	actions.DownloadArtifacts(latestRun)
-
-	workflowInfo := info.GetInfo()
-	info.UpdateInfo(info.Info{
-		Status: workflowInfo.Status,
-		ElapsedTime: int64(time.Since(prevTime).Seconds()),
-		Workflow: info.Workflow{
-			ID: workflowInfo.Workflow.ID,
-			Title: workflowInfo.Workflow.Title,
-		},
-	})
+	info.UpdateInfo(info.Info{ ElapsedTime: int64(time.Since(prevTime).Seconds()) })
 }

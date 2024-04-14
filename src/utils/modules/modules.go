@@ -1,13 +1,13 @@
 package modules
 
 import (
+	"archive/zip"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
-	"archive/zip"
 )
 
 func ReadFile(path string) (string, error) {

@@ -7,8 +7,6 @@ env:
     TOKEN_PAT: ${{ secrets.TOKEN_PAT }}
     status: failure
     workflow_name: none
-    elapsed-time: 0
-    commit-log: none
     apk-path: none
     repo-title: none
 
@@ -22,15 +20,19 @@ jobs:
             - name: Run Main.go
               id: run-main
               run: |
-                go run ./src/main.go 
-                echo "status=$(jq -r '.status' data/info.json)" >> $GITHUB_ENV
-                echo "elapsed-time=$(jq -r '.["elapsed-time"]' data/info.json)" >> $GITHUB_ENV
-                echo "workflow_name=$(jq -r '.workflow.title' data/info.json)" >> $GITHUB_ENV
-                echo "commit-log=$(jq -r '.["commit-log"]' data/info.json)" >> $GITHUB_ENV
-                echo "repo-title=$(jq -r '.workflow.repo' data/settings.json)" >> $GITHUB_ENV
+                  go run ./src/main.go 
 
-                apk=$(ls -S archive/*.apk | head -n 1)
-                echo "apk-path=$apk" >> $GITHUB_ENV
+            - name: Set Environment Variables
+              run: |
+                  echo "status=$(jq -r '.status' data/info.json)" >> $GITHUB_ENV
+                  echo "workflow_name=$(jq -r '.workflow.title' data/info.json)" >> $GITHUB_ENV
+                  echo "repo-title=$(jq -r '.workflow.repo' data/settings.json)" >> $GITHUB_ENV
+                  echo "apk-path=$(ls -S archive/*.apk | head -n 1)" >> $GITHUB_ENV
+            
+            - name: Make Temporary Files
+              run: |
+                  echo "$(jq -r '.["commit-log"]' data/info.json)" > ./data/commit-log.txt
+                  echo "$(jq -r '.["elapsed-time"]' data/info.json)" > ./data/elapsed-time.txt
 
             - name: Get Apk Info
               id: apk-info
@@ -53,27 +55,27 @@ jobs:
 
             - name: Delete Old Releases
               run: |
-                releases=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                  -H "Accept: application/vnd.github.v3+json" \
-                  https://api.github.com/repos/${{ github.repository }}/releases | jq -r '.[] | .id' | sort -nr)
-
-                for release in $releases; do
-                  curl -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                  releases=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                     -H "Accept: application/vnd.github.v3+json" \
-                    https://api.github.com/repos/${{ github.repository }}/releases/$release
-                done
+                    https://api.github.com/repos/${{ github.repository }}/releases | jq -r '.[] | .id' | sort -nr)
+
+                  for release in $releases; do
+                    curl -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                      -H "Accept: application/vnd.github.v3+json" \
+                      https://api.github.com/repos/${{ github.repository }}/releases/$release
+                  done
 
             - name: Delete Old Tags
               run: |
-                tags=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                  -H "Accept: application/vnd.github.v3+json" \
-                  https://api.github.com/repos/${{ github.repository }}/tags | jq -r '.[] | .name')
-
-                for tag in $tags; do
-                  curl -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                  tags=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                     -H "Accept: application/vnd.github.v3+json" \
-                    https://api.github.com/repos/${{ github.repository }}/git/refs/tags/$tag
-                done
+                    https://api.github.com/repos/${{ github.repository }}/tags | jq -r '.[] | .name')
+
+                  for tag in $tags; do
+                    curl -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                      -H "Accept: application/vnd.github.v3+json" \
+                      https://api.github.com/repos/${{ github.repository }}/git/refs/tags/$tag
+                  done
 
             - name: Publish Release
               uses: softprops/action-gh-release@v2
@@ -92,14 +94,13 @@ jobs:
         steps:
             - name: Sleep until 5 minutes have passed
               run: |
-                  if [ ${{ env.elapsed-time }} -lt 300 ]; then
-                      sleep $((300 - ${{ env.elapsed-time }}))
-                  else
-                      echo "Elapsed time is greater than 5 minutes, skipping sleep"
+                  elapsed_time=$(cat ./data/elapsed-time.txt) # time in seconds
+                  if [ $elapsed_time -lt 300 ]; then
+                      sleep $((300 - $elapsed_time))
                   fi
 
             - name: Re-trigger workflow
-              run: gh workflow run checker.yaml
+              run: gh workflow run ${{ github.workflow }}.yaml
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GH_REPO: ${{ github.repository }}
