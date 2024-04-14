@@ -32,7 +32,7 @@ jobs:
             - name: Make Temporary Files
               run: |
                   echo "$(jq -r '.["commit-log"]' data/info.json)" > ./data/commit-log.txt
-                  echo "$(jq -r '.["elapsed-time"]' data/info.json)" > ./data/elapsed-time.txt
+                  # echo "$(jq -r '.["elapsed-time"]' data/info.json)" > ./data/elapsed-time.txt
 
             - name: Get Apk Info
               id: apk-info
@@ -94,10 +94,11 @@ jobs:
         steps:
             - name: Sleep until 5 minutes have passed
               run: |
-                  elapsed_time=$(cat ./data/elapsed-time.txt) # time in seconds
-                  if [ $elapsed_time -lt 300 ]; then
-                      sleep $((300 - $elapsed_time))
-                  fi
+                  sleep 300
+                  # elapsed_time=$(cat ./data/elapsed-time.txt) # time in seconds
+                  # if [ $elapsed_time -lt 300 ]; then
+                  #     sleep $((300 - $elapsed_time))
+                  # fi
 
             - name: Re-trigger workflow
               run: gh workflow run ${{ github.workflow }}.yaml
