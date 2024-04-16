@@ -20,7 +20,7 @@ jobs:
             - name: Run Main.go
               id: run-main
               run: |
-                  go run ./src/main.go 
+                  go run ./src/main.go
 
             - name: Set Environment Variables
               run: |
@@ -28,7 +28,7 @@ jobs:
                   echo "workflow_name=$(jq -r '.workflow.title' data/info.json)" >> $GITHUB_ENV
                   echo "repo-title=$(jq -r '.workflow.repo' data/settings.json)" >> $GITHUB_ENV
                   echo "apk-path=$(ls -S archive/*.apk | head -n 1)" >> $GITHUB_ENV
-            
+
             - name: Make Temporary Files
               run: |
                   echo "$(jq -r '.["commit-log"]' data/info.json)" > ./data/commit-log.txt
