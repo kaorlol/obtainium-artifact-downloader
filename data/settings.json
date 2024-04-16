@@ -1,10 +1,9 @@
 {
 	"workflow": {
-		"owner": "rhunk",
-		"repo": "SnapEnhance",
-		"name": "release.yml",
+		"owner": "rebelonion",
+		"repo": "Dantotsu",
+		"name": "beta.yml",
 		"branch": "dev"
 	},
-	"delay": 10,
-	"extensions": ["apk"]
+	"delay": 10
 }

@@ -11,11 +11,7 @@ import (
 	"reflect"
 	"regexp"
 	"sync"
-
-	"artifact-downloader/src/utils/settings"
 )
-
-var extensions = settings.GetSettings().Extensions
 
 func ReadFile(path string) (string, error) {
 	file := filepath.Join(path)
@@ -95,7 +91,7 @@ func ExtractFromZip(zipFile string, outputDir string) error {
 
 	var filesToExtract []string
 	for _, file := range reader.File {
-		if _, ok := ExtensionsMap()[path.Ext(file.Name)]; ok {
+		if path.Ext(file.Name) == ".apk" {
 			filesToExtract = append(filesToExtract, file.Name)
 		}
 	}
@@ -123,14 +119,6 @@ func ExtractFromZip(zipFile string, outputDir string) error {
 	})
 
 	return err
-}
-
-func ExtensionsMap() map[string]bool {
-	extensionsMap := make(map[string]bool)
-	for _, ext := range extensions {
-		extensionsMap[ext] = true
-	}
-	return extensionsMap
 }
 
 func Parallel[TYPE any](data []TYPE, f interface{}) error {
