@@ -36,10 +36,10 @@ jobs:
 
             - name: Get Apk Info
               id: apk-info
+              if: ${{ env.status == 'success' }}
               uses: hkusu/apk-info-action@v1
               with:
                   apk-path: ${{ env.apk-path }}
-              if: ${{ env.status == 'success' }}
 
             - name: Commit Changes
               run: |
@@ -79,12 +79,12 @@ jobs:
 
             - name: Publish Release
               uses: softprops/action-gh-release@v2
+              if: ${{ env.status == 'success' }}
               with:
                   files: ./archive/*.apk
                   tag_name: ${{ steps.apk-info.outputs.version-name }}
                   name: ${{ env.workflow_name }}
                   body_path: ./data/commit-log.txt
-              if: ${{ env.status == 'success' }}
 
     rerun-workflow:
         name: Re-run workflow
