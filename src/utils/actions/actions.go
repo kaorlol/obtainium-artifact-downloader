@@ -80,6 +80,7 @@ func DownloadArtifacts(runID int64) error {
 	modules.MakeDir("archive")
 	err = modules.Parallel(artifacts.Artifacts, func(artifact *github.Artifact) error {
 		if artifact.GetExpired() {
+			info.UpdateInfo(info.Info{Status: "artifacts expired"})
 			return fmt.Errorf("artifact expired")
 		}
 
