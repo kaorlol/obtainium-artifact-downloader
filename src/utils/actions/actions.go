@@ -16,10 +16,15 @@ import (
 )
 
 var (
-	token            = info.GetGitHubToken()
-	workflowInfo     = info.GetInfo()
-	workflowSettings = settings.GetSettings()
-	client           = createClient()
+	token        = info.GetGitHubToken()
+	workflowInfo = info.GetInfo()
+
+	config = settings.GetSettings()
+	owner  = config.Workflow.Owner
+	repo   = config.Workflow.Repo
+	name   = config.Workflow.Name
+
+	client = createClient()
 )
 
 func createClient() *github.Client {
@@ -31,12 +36,8 @@ func createClient() *github.Client {
 }
 
 func GetWorkflowLatestRun() (int64, error) {
-	owner := workflowSettings.Workflow.Owner
-	repo := workflowSettings.Workflow.Repo
-	name := workflowSettings.Workflow.Name
-
 	workflowRuns, _, err := client.Actions.ListWorkflowRunsByFileName(context.Background(), owner, repo, name, &github.ListWorkflowRunsOptions{
-		Branch: workflowSettings.Workflow.Branch,
+		Branch: config.Workflow.Branch,
 		Status: "success",
 	})
 
@@ -53,7 +54,7 @@ func GetWorkflowLatestRun() (int64, error) {
 	latestRun := workflowRuns.WorkflowRuns[0]
 	oldRun := workflowRuns.WorkflowRuns[1]
 	if latestRun.GetID() == workflowInfo.Workflow.ID {
-		time.Sleep(time.Duration(workflowSettings.Delay) * time.Second)
+		time.Sleep(time.Duration(config.Delay) * time.Second)
 		return GetWorkflowLatestRun()
 	}
 
@@ -70,9 +71,6 @@ func GetWorkflowLatestRun() (int64, error) {
 }
 
 func DownloadArtifacts(runID int64) error {
-	owner := workflowSettings.Workflow.Owner
-	repo := workflowSettings.Workflow.Repo
-
 	artifacts, _, err := client.Actions.ListWorkflowRunArtifacts(context.Background(), owner, repo, runID, &github.ListOptions{})
 	if _, ok := err.(*github.RateLimitError); ok {
 		info.UpdateInfo(info.Info{Status: "hit rate limit"})
@@ -96,7 +94,7 @@ func DownloadArtifacts(runID int64) error {
 			return err
 		}
 
-		err = modules.ExtractFromZip("archive/"+artifact.GetName()+".zip", ".apk", "archive")
+		err = modules.ExtractFromZip("archive/"+artifact.GetName()+".zip", "archive")
 		if err != nil {
 			return err
 		}
@@ -119,12 +117,9 @@ func DownloadArtifacts(runID int64) error {
 }
 
 func getCommitHistory(since, until time.Time) error {
-	owner := workflowSettings.Workflow.Owner
-	repo := workflowSettings.Workflow.Repo
-
 	println("Getting commit history...")
 	commits, _, err := client.Repositories.ListCommits(context.Background(), owner, repo, &github.CommitsListOptions{
-		SHA:   workflowSettings.Workflow.Branch,
+		SHA:   config.Workflow.Branch,
 		Since: since,
 		Until: until,
 	})
