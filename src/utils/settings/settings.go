@@ -16,8 +16,9 @@ type Workflow struct {
 }
 
 type Settings struct {
-	Workflow Workflow `json:"workflow"`
-	Delay    int64    `json:"delay"`
+	Workflow   Workflow `json:"workflow"`
+	Delay      int64    `json:"delay"`
+	Extensions []string `json:"extensions"`
 }
 
 func GetSettings() Settings {

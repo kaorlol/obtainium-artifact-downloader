@@ -6,12 +6,16 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"reflect"
 	"regexp"
-	"strings"
 	"sync"
+
+	"artifact-downloader/src/utils/settings"
 )
+
+var extensions = settings.GetSettings().Extensions
 
 func ReadFile(path string) (string, error) {
 	file := filepath.Join(path)
@@ -82,7 +86,7 @@ func DownloadFile(urlStr string, outputDir string) error {
 	})
 }
 
-func ExtractFromZip(zipFile string, ext string, outputDir string) error {
+func ExtractFromZip(zipFile string, outputDir string) error {
 	reader, err := zip.OpenReader(zipFile)
 	if err != nil {
 		return fmt.Errorf("unable to open zip file: %v", err)
@@ -91,7 +95,7 @@ func ExtractFromZip(zipFile string, ext string, outputDir string) error {
 
 	var filesToExtract []string
 	for _, file := range reader.File {
-		if strings.HasSuffix(file.Name, ext) {
+		if _, ok := ExtensionsMap()[path.Ext(file.Name)]; ok {
 			filesToExtract = append(filesToExtract, file.Name)
 		}
 	}
@@ -119,6 +123,14 @@ func ExtractFromZip(zipFile string, ext string, outputDir string) error {
 	})
 
 	return err
+}
+
+func ExtensionsMap() map[string]bool {
+	extensionsMap := make(map[string]bool)
+	for _, ext := range extensions {
+		extensionsMap[ext] = true
+	}
+	return extensionsMap
 }
 
 func Parallel[TYPE any](data []TYPE, f interface{}) error {
