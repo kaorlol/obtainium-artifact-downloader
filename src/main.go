@@ -4,24 +4,24 @@ import (
 	"fmt"
 	"time"
 
-	"artifact-downloader/src/utils/actions"
-	"artifact-downloader/src/utils/info"
+	"artifact-downloader/src/utils/modules"
+	"artifact-downloader/src/utils/data"
 )
 
 func main() {
 	println("Getting workflow latest run...")
 	prevTime := time.Now()
-	latestRun, err := actions.GetWorkflowLatestRun()
+	latestRun, err := modules.GetWorkflowLatestRun()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	err = actions.DownloadArtifacts(latestRun)
+	err = modules.DownloadArtifacts(latestRun)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	info.UpdateInfo(info.Info{ElapsedTime: int64(time.Since(prevTime).Seconds())})
+	data.UpdateInfo(data.Info{ElapsedTime: int64(time.Since(prevTime).Seconds())})
 }
