@@ -31,7 +31,7 @@ func main() {
 		return
 	}
 
-	data.UpdateInfo(data.Info{ElapsedTime: int64(time.Since(prevTime).Seconds())})
+	data.UpdateInfo(data.Info{ElapsedTime: time.Since(prevTime).Seconds()})
 }
 
 func getTokenArgs() string {
