@@ -35,11 +35,7 @@ func main() {
 }
 
 func getTokenArgs() string {
-	args := os.Args[1:]
-	for i := 0; i < len(args); i++ {
-		if strings.HasPrefix(args[i], "--token=") {
-			return strings.TrimPrefix(args[i], "--token=")
-		}
-	}
-	return ""
+	return strings.TrimPrefix(modules.Filter(os.Args[1:], func(arg string) bool {
+		return strings.HasPrefix(arg, "--token=")
+	})[0], "--token=")
 }
