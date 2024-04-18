@@ -14,7 +14,6 @@ import (
 )
 
 var (
-	token        = data.GetGitHubToken()
 	workflowInfo = data.GetInfo()
 
 	settings = data.GetSettings()
