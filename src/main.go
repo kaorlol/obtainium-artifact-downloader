@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -13,7 +12,8 @@ import (
 func main() {
 	token := getTokenArgs()
 	if token == "" {
-		panic("token not provided")
+		println("token not provided")
+		return
 	}
 
 	println("Getting workflow latest run...")
@@ -21,13 +21,13 @@ func main() {
 	modules.SetClient(token)
 	latestRun, err := modules.GetWorkflowLatestRun()
 	if err != nil {
-		fmt.Println(err)
+		println(err)
 		return
 	}
 
 	err = modules.DownloadArtifacts(latestRun)
 	if err != nil {
-		fmt.Println(err)
+		println(err)
 		return
 	}
 
