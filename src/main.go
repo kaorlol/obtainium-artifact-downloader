@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"artifact-downloader/src/utils/data"
-	"artifact-downloader/src/utils/modules"
+	"artifact-downloader/src/data"
+	"artifact-downloader/src/modules"
 )
 
 func main() {

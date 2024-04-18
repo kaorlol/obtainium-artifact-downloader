@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"artifact-downloader/src/utils/data"
+	"artifact-downloader/src/data"
 
 	"github.com/google/go-github/v61/github"
 	"golang.org/x/oauth2"
