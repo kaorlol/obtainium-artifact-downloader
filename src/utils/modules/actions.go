@@ -18,22 +18,30 @@ var (
 	workflowInfo = data.GetInfo()
 
 	settings = data.GetSettings()
-	owner  = settings.Workflow.Owner
-	repo   = settings.Workflow.Repo
-	name   = settings.Workflow.Name
+	owner    = settings.Workflow.Owner
+	repo     = settings.Workflow.Repo
+	name     = settings.Workflow.Name
 
-	client = createClient()
+	client *github.Client
 )
 
-func createClient() *github.Client {
+func SetClient(token string) {
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
+		&oauth2.Token{
+			AccessToken: token,
+			TokenType:   "Bearer",
+			Expiry:      time.Date(2025, 4, 11, 0, 0, 0, 0, time.UTC),
+		},
 	)
 	tc := oauth2.NewClient(context.Background(), ts)
-	return github.NewClient(tc)
+	client = github.NewClient(tc)
 }
 
 func GetWorkflowLatestRun() (int64, error) {
+	if client == nil {
+		return 0, fmt.Errorf("client not set")
+	}
+
 	workflowRuns, _, err := client.Actions.ListWorkflowRunsByFileName(context.Background(), owner, repo, name, &github.ListWorkflowRunsOptions{
 		Branch: settings.Workflow.Branch,
 		Status: "success",

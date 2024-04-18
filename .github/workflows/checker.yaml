@@ -4,7 +4,6 @@ on:
     workflow_dispatch:
 
 env:
-    TOKEN_PAT: ${{ secrets.TOKEN_PAT }}
     status: failure
     workflow_name: none
     apk-path: none
@@ -20,7 +19,7 @@ jobs:
             - name: Run Main.go
               id: run-main
               run: |
-                  go run ./src/main.go
+                  go run ./src/main.go --token="${{ secrets.GITHUB_TOKEN }}"
 
             - name: Set Environment Variables
               run: |
