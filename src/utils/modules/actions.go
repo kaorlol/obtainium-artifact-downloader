@@ -27,11 +27,7 @@ var (
 
 func SetClient(token string) {
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{
-			AccessToken: token,
-			TokenType:   "Bearer",
-			Expiry:      time.Date(2025, 4, 11, 0, 0, 0, 0, time.UTC),
-		},
+		&oauth2.Token{AccessToken: token, TokenType: "Bearer"},
 	)
 	tc := oauth2.NewClient(context.Background(), ts)
 	client = github.NewClient(tc)
