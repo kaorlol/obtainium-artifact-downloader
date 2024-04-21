@@ -91,13 +91,16 @@ jobs:
         if: success() || failure()
         runs-on: ubuntu-latest
         steps:
-            - name: Sleep until 5 minutes have passed
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: Wait for 5 minutes
               run: |
-                  sleep 300
-                  # elapsed_time=$(cat ./data/elapsed-time.txt) # time in seconds
-                  # if [ $elapsed_time -lt 300 ]; then
-                  #     sleep $((300 - $elapsed_time))
-                  # fi
+                  elapsed_time=$(jq -r '.["elapsed-time"]' data/info.json)
+
+                  if [ $elapsed_time -lt 300 ]; then
+                    sleep $((300 - elapsed_time))
+                  fi
 
             - name: Re-trigger workflow
               run: gh workflow run checker.yaml
