@@ -59,7 +59,7 @@ func GetWorkflowLatestRun() (int64, error) {
 		return GetWorkflowLatestRun()
 	}
 
-	fmt.Printf("Workflow run named: '%s' found with id %d\n", latestRun.GetName(), latestRun.GetID())
+	fmt.Printf("Workflow run named: \"%s\" found with id %d\n", latestRun.GetDisplayTitle(), latestRun.GetID())
 	workflowInfo = data.UpdateInfo(data.Info{
 		Workflow: data.IWorkflow{
 			ID:    latestRun.GetID(),
