@@ -131,17 +131,20 @@ func getCommitHistory(since, until time.Time) error {
 		return fmt.Errorf("hit rate limit")
 	}
 
-	commitLog := ""
-	for _, commit := range commits {
-		message := commit.GetCommit().GetMessage()
+	var commitLog strings.Builder
+	for i, commit := range commits {
+		message := strings.TrimFunc(commit.GetCommit().GetMessage(), func(r rune) bool { return r == '\n' || r == '\r' || r == '\t' || r == ' ' })
 		author := commit.GetCommit().GetAuthor().GetName()
 
 		if !strings.Contains(author, "(bot)") {
-			commitLog += fmt.Sprintf("- %s ~%s\n", strings.Trim(message, " \t\n\r"), author)
+			commitLog.WriteString(fmt.Sprintf("- %s ~%s", message, author))
+			if i != len(commits)-1 {
+				commitLog.WriteRune('\n')
+			}
 		}
 	}
 
-	workflowInfo = data.UpdateInfo(data.Info{CommitLog: commitLog})
+	workflowInfo = data.UpdateInfo(data.Info{CommitLog: commitLog.String()})
 	println("Commit history updated successfully")
 	return nil
 }
