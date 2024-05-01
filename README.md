@@ -11,3 +11,6 @@ Click on the button to the right called `Run workflow` then click the green butt
 
 ## Issues
 If you encounter any issues with the workflow or the checker itself create a new issue [here](https://github.com/kaorlol/apk-artifact-downloader/issues)
+
+### Note:
+If you see anything in the releases of this repository ignore it. Its just uploaded there because of a test that was run. 
