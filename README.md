@@ -1,4 +1,4 @@
-# APK Artifact Downloader
+# Obtainium Artifact Downloader
 This is a simple script that downloads any files from a github action extracts the apks from them and uploads them to your github releases.
 
 ## Usage
