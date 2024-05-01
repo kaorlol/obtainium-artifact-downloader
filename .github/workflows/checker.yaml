@@ -28,10 +28,9 @@ jobs:
                   echo "repo-title=$(jq -r '.workflow.repo' data/settings.json)" >> $GITHUB_ENV
                   echo "apk-path=$(ls -S archive/*.apk | head -n 1)" >> $GITHUB_ENV
 
-            - name: Make Temporary Files
+            - name: Make Commit Log
               run: |
                   echo "$(jq -r '.["commit-log"]' data/info.json)" > ./data/commit-log.txt
-                  # echo "$(jq -r '.["elapsed-time"]' data/info.json)" > ./data/elapsed-time.txt
 
             - name: Get Apk Info
               id: apk-info
@@ -42,7 +41,7 @@ jobs:
 
             - name: Commit Changes
               run: |
-                  git config --global user.email "${{ secrets.EMAIL }}"
+                  git config --global user.email "apk-artifacts-downloader@github.com"
                   git config --global user.name "${{ github.repository_owner }}"
                   git add .
                   git commit -m "Update ${{ env.repo-title }} to latest version"
